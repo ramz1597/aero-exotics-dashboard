@@ -1,3 +1,2 @@
 streamlit
-pandas
-3.  **Streamlit Cloud:**
+
