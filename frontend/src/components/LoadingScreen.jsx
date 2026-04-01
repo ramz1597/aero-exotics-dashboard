@@ -12,7 +12,8 @@ export default function LoadingScreen({ onComplete }) {
     const video = videoRef.current;
     if (!video) return;
 
-    const handleEnded = () => {
+    const dismiss = () => {
+      if (fadeOut) return;
       setFadeOut(true);
       setTimeout(() => {
         setHidden(true);
@@ -20,28 +21,28 @@ export default function LoadingScreen({ onComplete }) {
       }, 800);
     };
 
-    const handleError = () => {
-      // If video fails, skip loading screen after 2s
-      setTimeout(() => {
-        setFadeOut(true);
-        setTimeout(() => { setHidden(true); onComplete?.(); }, 800);
-      }, 2000);
+    const handleEnded = () => dismiss();
+    const handleError = () => setTimeout(dismiss, 1000);
+
+    // Force play when video is ready
+    const handleCanPlay = () => {
+      video.play().catch(() => {});
     };
 
     video.addEventListener("ended", handleEnded);
     video.addEventListener("error", handleError);
+    video.addEventListener("canplaythrough", handleCanPlay);
 
-    // Fallback: auto-dismiss after 8 seconds
-    const fallback = setTimeout(() => {
-      if (!fadeOut) {
-        setFadeOut(true);
-        setTimeout(() => { setHidden(true); onComplete?.(); }, 800);
-      }
-    }, 8000);
+    // Also try playing immediately
+    video.play().catch(() => {});
+
+    // Fallback: auto-dismiss after 10 seconds
+    const fallback = setTimeout(dismiss, 10000);
 
     return () => {
       video.removeEventListener("ended", handleEnded);
       video.removeEventListener("error", handleError);
+      video.removeEventListener("canplaythrough", handleCanPlay);
       clearTimeout(fallback);
     };
   }, [onComplete, fadeOut]);
@@ -60,7 +61,8 @@ export default function LoadingScreen({ onComplete }) {
         autoPlay
         muted
         playsInline
-        className="w-full h-full object-contain max-w-3xl"
+        preload="auto"
+        className="w-full h-full object-cover"
       >
         <source src={LOADING_VIDEO_URL} type="video/mp4" />
       </video>
