@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
+import httpx
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -106,9 +107,34 @@ class QuoteResponse(BaseModel):
 
 # --- Routes ---
 
+GSHEET_WEBHOOK = os.environ.get("GSHEET_WEBHOOK_URL", "")
+
+async def sync_to_sheet(payload: dict):
+    """Fire-and-forget POST to Google Apps Script webhook"""
+    if not GSHEET_WEBHOOK:
+        return
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            await client.post(GSHEET_WEBHOOK, json=payload, follow_redirects=True)
+    except Exception as e:
+        logger.warning(f"Google Sheet sync failed: {e}")
+
 @api_router.get("/")
 async def root():
     return {"message": "AeroExotic API"}
+
+@api_router.get("/availability")
+async def get_availability():
+    """Fetch available slots from Google Sheet"""
+    if not GSHEET_WEBHOOK:
+        return {"success": True, "slots": [], "message": "Google Sheet not configured"}
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            resp = await client.get(GSHEET_WEBHOOK, follow_redirects=True)
+            return resp.json()
+    except Exception as e:
+        logger.warning(f"Failed to fetch availability: {e}")
+        return {"success": False, "slots": []}
 
 @api_router.post("/bookings", response_model=BookingResponse)
 async def create_booking(data: BookingCreate):
@@ -129,6 +155,22 @@ async def create_booking(data: BookingCreate):
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.bookings.insert_one(doc)
+    # Sync to Google Sheet
+    await sync_to_sheet({
+        "action": "book",
+        "name": data.name,
+        "phone": data.phone,
+        "email": data.email,
+        "service_type": data.package_name,
+        "vehicle_type": data.vehicle_type,
+        "year_make_model": data.vehicle_size,
+        "preferred_date": data.preferred_date,
+        "preferred_time": data.preferred_time,
+        "add_ons": ", ".join(data.add_ons),
+        "zip_code": "",
+        "notes": data.notes or "",
+        "source": "Booking Wizard"
+    })
     return {k: v for k, v in doc.items() if k != "_id"}
 
 @api_router.get("/bookings", response_model=List[BookingResponse])
@@ -166,6 +208,22 @@ async def create_quote(data: QuoteCreate):
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.quotes.insert_one(doc)
+    # Sync to Google Sheet
+    await sync_to_sheet({
+        "action": "book",
+        "name": data.name,
+        "phone": data.phone,
+        "email": "",
+        "service_type": data.service_type,
+        "vehicle_type": data.vehicle_type,
+        "year_make_model": data.year_make_model,
+        "preferred_date": "",
+        "preferred_time": "",
+        "add_ons": "",
+        "zip_code": data.zip_code,
+        "notes": data.notes or "",
+        "source": "Quote Form"
+    })
     return {k: v for k, v in doc.items() if k != "_id"}
 
 @api_router.post("/notify", response_model=NotifyResponse)
