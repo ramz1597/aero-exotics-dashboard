@@ -43,18 +43,16 @@ const VEHICLE_SIZES = [
 ];
 
 const PACKAGES = [
-  { id: "essential-wash", name: "Essential Wash", price: "Starting at $60", features: ["Hand wash with foam cannon", "Wheels & tires cleaned", "Tire shine"] },
-  { id: "interior-refresh", name: "Interior Refresh", price: "Starting at $95", features: ["Full interior vacuum", "Dash & console wipe down", "Leather conditioning", "Interior windows"] },
-  { id: "society-signature", name: "Society Signature", price: "Starting at $160", popular: true, features: ["Interior Refresh + Essential Wash", "Door jambs cleaned", "Wax sealant (1 month)"] },
-  { id: "black-label", name: "Black Label Detail", price: "$220 - $250", premium: true, features: ["Full Society Signature", "Deep carpet & seat shampoo", "Full exterior detail", "Wax sealant applied"] },
+  { id: "founders-detail", name: "Founders Detail", price: "$100 (Limited Time)", popular: true, features: ["Double vacuum & trash removal", "Dash, console & plastic wipe down", "Floor mat clean, door jam wipe down", "Basic exterior wash + air freshener"] },
+  { id: "black-label", name: "Black Label Detail", price: "Starting at $200", premium: true, features: ["Everything in Founders Detail", "Full interior detail (shampoo, steam, leather)", "Full exterior detail + wax sealant", "Door jams & trim dressed"] },
 ];
 
 const ADD_ONS = [
-  { id: "pet-hair", label: "Pet Hair Removal", price: "$25 - $50" },
-  { id: "stain-removal", label: "Heavy Stain Removal", price: "$25+" },
-  { id: "ceramic-coating", label: "Ceramic Coating", price: "$200+" },
-  { id: "wax-sealant", label: "Exterior Wax Sealant", price: "$60 - $90" },
-  { id: "leather-shampoo", label: "Leather & Carpet Shampoo", price: "$80+" },
+  { id: "pet-hair", label: "Pet Hair Removal", price: "$50" },
+  { id: "stain-extraction", label: "Heavy Stain Extraction", price: "$50+" },
+  { id: "wax-sealant", label: "Exterior Wax Sealant", price: "$50 - $75" },
+  { id: "leather-shampoo", label: "Leather & Carpet Shampoo + Conditioner", price: "$75" },
+  { id: "ceramic-coating", label: "Ceramic Coating (1yr & 5yr options)", price: "Starting $200" },
 ];
 
 const TIME_SLOTS = [

@@ -28,7 +28,7 @@ const Home = ({ onBookClick }) => {
       <TrustBar />
       <QuoteForm />
       <Services />
-      <PricingTable onBookClick={onBookClick} />
+      <PricingTable />
       <Gallery />
       <WhyChooseUs />
       <ProcessSection />

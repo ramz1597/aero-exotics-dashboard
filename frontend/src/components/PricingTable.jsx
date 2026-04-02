@@ -4,59 +4,34 @@ import { Badge } from "@/components/ui/badge";
 
 const packages = [
   {
-    id: "essential-wash",
-    name: "Essential Wash",
-    price: "$60",
-    priceLabel: "Starting at",
+    id: "founders-detail",
+    name: "Founders Detail",
+    subtitle: "Limited Time",
+    price: "$100",
+    priceLabel: "",
     features: [
-      "Hand wash with high pH-enhanced cleaning agents",
-      "Professional foam cannon application",
-      "Wheels & tires meticulously cleaned",
-      "Tire shine",
+      "Double vacuum",
+      "Trash removal",
+      "Dash, console & plastic wipe down",
+      "Floor mat clean and refresh",
+      "Door jam wipe down",
+      "Basic exterior wash",
+      "AeroExotic air freshener",
     ],
-    popular: false,
-  },
-  {
-    id: "interior-refresh",
-    name: "Interior Refresh",
-    price: "$95",
-    priceLabel: "Starting at",
-    features: [
-      "Full interior vacuum",
-      "Wipe down of dash, doors & console",
-      "Leather & upholstery conditioning",
-      "Interior windows cleaned",
-      "Light deodorizer",
-    ],
-    popular: false,
-  },
-  {
-    id: "society-signature",
-    name: "Society Signature",
-    price: "$160",
-    priceLabel: "Starting at",
-    features: [
-      "Interior Refresh included",
-      "Essential Wash included",
-      "Door jambs cleaned",
-      "Wax sealant applied (1 month protection)",
-    ],
+    note: "All Add-Ons are half off during event (excluding ceramic coating)",
     popular: true,
   },
   {
     id: "black-label",
     name: "Black Label Detail",
-    subtitle: "Ultimate Detail",
-    price: "$220 - $250",
-    priceLabel: "",
+    price: "$200",
+    priceLabel: "Starting at",
     features: [
-      "Full Society Signature Package",
-      "Deep carpet & seat shampoo",
-      "Steam removal",
-      "Leather cleaning & conditioning",
+      "Everything in Founders Detail",
+      "Full interior detail (deep carpet shampoo, steam removal, leather conditioning)",
       "Full exterior detail",
-      "Wax sealant applied",
-      "Door jambs & trim dressed",
+      "Exterior wax sealant (protects paint)",
+      "Door jams & trim dressed",
     ],
     popular: false,
     premium: true,
@@ -64,14 +39,14 @@ const packages = [
 ];
 
 const addOns = [
-  { name: "Pet Hair Removal", price: "$25 - $50" },
-  { name: "Heavy Stain Removal", price: "$25+" },
-  { name: "Ceramic Coating", price: "$200+" },
-  { name: "Exterior Wax Sealant", price: "$60 - $90" },
-  { name: "Leather & Carpet Shampoo & Conditioner", price: "$80+" },
+  { name: "Pet Hair Removal", price: "$50" },
+  { name: "Heavy Stain Extraction", price: "$50+" },
+  { name: "Exterior Wax Sealant", price: "$50 - $75" },
+  { name: "Leather & Carpet Shampoo + Conditioner", price: "$75" },
+  { name: "Ceramic Coating (1yr & 5yr options)", price: "Starting $200" },
 ];
 
-export default function PricingTable({ onBookClick }) {
+export default function PricingTable() {
   return (
     <section id="pricing" data-testid="pricing-section" className="py-24 lg:py-32 bg-[#0a0a0a]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -84,12 +59,12 @@ export default function PricingTable({ onBookClick }) {
             Detailing Packages
           </h2>
           <p className="text-base text-gray-400 max-w-xl mx-auto">
-            Pricing varies based on vehicle size and condition
+            Prices vary based on vehicle size and condition
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-16">
           {packages.map((pkg) => (
             <div
               key={pkg.id}
@@ -104,12 +79,12 @@ export default function PricingTable({ onBookClick }) {
             >
               {pkg.popular && (
                 <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#D92323] text-white border-0 text-[10px] tracking-wider uppercase px-3">
-                  Most Popular
+                  Limited Time
                 </Badge>
               )}
               {pkg.premium && (
                 <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-black border-0 text-[10px] tracking-wider uppercase px-3">
-                  Ultimate
+                  Premium
                 </Badge>
               )}
 
@@ -118,7 +93,7 @@ export default function PricingTable({ onBookClick }) {
                   {pkg.name}
                 </h3>
                 {pkg.subtitle && (
-                  <p className="text-xs text-gray-500 uppercase tracking-wider">{pkg.subtitle}</p>
+                  <p className="text-xs text-[#D92323] uppercase tracking-wider font-semibold">{pkg.subtitle}</p>
                 )}
                 <div className="mt-4">
                   {pkg.priceLabel && (
@@ -137,9 +112,15 @@ export default function PricingTable({ onBookClick }) {
                 ))}
               </div>
 
+              {pkg.note && (
+                <div className="mb-4 p-3 rounded-lg bg-[#D92323]/10 border border-[#D92323]/20">
+                  <p className="text-xs text-[#D92323] font-semibold">{pkg.note}</p>
+                </div>
+              )}
+
               <Button
                 data-testid={`pricing-${pkg.id}-btn`}
-                onClick={onBookClick}
+                onClick={() => { const el = document.querySelector("#quote"); if (el) el.scrollIntoView({ behavior: "smooth" }); }}
                 className={`w-full font-heading font-semibold ${
                   pkg.premium
                     ? "bg-white text-black hover:bg-gray-200"
@@ -148,7 +129,7 @@ export default function PricingTable({ onBookClick }) {
                     : "bg-white/10 text-white hover:bg-white/20 border border-white/10"
                 }`}
               >
-                Book Now
+                Get a Quote
               </Button>
             </div>
           ))}
