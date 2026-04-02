@@ -24,7 +24,7 @@ const faqs = [
   },
   {
     q: "How long does a typical detail take?",
-    a: "An Essential Wash takes approximately 1-2 hours. Interior Refresh is 1.5-2 hours. The Society Signature package takes 2-3 hours, and the Black Label Detail takes 4-6 hours depending on vehicle size and condition.",
+    a: "A Founders Detail takes approximately 2.5 hours. The Black Label Detail takes 4-6 hours depending on vehicle size and condition.",
   },
   {
     q: "How do I get a quote?",

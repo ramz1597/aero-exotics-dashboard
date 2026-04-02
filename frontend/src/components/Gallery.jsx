@@ -1,26 +1,36 @@
-import { useState, useEffect } from "react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import axios from "axios";
+import { useState } from "react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const GALLERY_IMAGES = [
+  { id: "1", url: "/gallery/Car1.JPG", alt: "Exotic car detail", category: "automotive" },
+  { id: "2", url: "/gallery/Car2.JPG", alt: "Premium vehicle detail", category: "automotive" },
+  { id: "3", url: "/gallery/Car3.JPG", alt: "Luxury car detailing", category: "automotive" },
+  { id: "4", url: "/gallery/Car4.JPG", alt: "Exterior paint correction", category: "automotive" },
+  { id: "5", url: "/gallery/Car5.JPG", alt: "Full exterior wash", category: "automotive" },
+  { id: "6", url: "/gallery/Car6.JPG", alt: "Professional car detail", category: "automotive" },
+  { id: "7", url: "/gallery/Car7.JPG", alt: "Showroom finish detail", category: "automotive" },
+  { id: "8", url: "/gallery/Car8.JPG", alt: "Exotic vehicle care", category: "automotive" },
+  { id: "9", url: "/gallery/Car9.JPG", alt: "Mobile detailing results", category: "automotive" },
+  { id: "10", url: "/gallery/Car10.JPG", alt: "AeroExotic car detail", category: "automotive" },
+  { id: "11", url: "/gallery/Car11.JPG", alt: "Precision auto detail", category: "automotive" },
+  { id: "12", url: "/gallery/InteriorDetail.webp", alt: "Full interior detail", category: "interior" },
+  { id: "13", url: "/gallery/Marine1.jpg", alt: "Marine watercraft detailing", category: "watercraft" },
+  { id: "14", url: "/gallery/Plane1.JPG", alt: "Aircraft detailing", category: "aircraft" },
+];
 
 const categories = [
   { value: "all", label: "All" },
-  { value: "automotive", label: "Auto" },
+  { value: "automotive", label: "Exterior" },
+  { value: "interior", label: "Interior" },
   { value: "aircraft", label: "Aero" },
   { value: "watercraft", label: "Marine" },
 ];
 
 export default function Gallery() {
-  const [images, setImages] = useState([]);
   const [filter, setFilter] = useState("all");
   const [selectedImg, setSelectedImg] = useState(null);
 
-  useEffect(() => {
-    axios.get(`${API}/gallery`).then((r) => setImages(r.data)).catch(() => {});
-  }, []);
-
-  const filtered = filter === "all" ? images : images.filter((img) => img.category === filter);
+  const filtered = filter === "all" ? GALLERY_IMAGES : GALLERY_IMAGES.filter((img) => img.category === filter);
 
   return (
     <section id="gallery" data-testid="gallery-section" className="py-24 lg:py-32 bg-[#050505]">

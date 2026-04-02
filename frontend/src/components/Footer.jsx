@@ -1,4 +1,4 @@
-import { Instagram, Mail, MapPin, ChevronUp, Phone } from "lucide-react";
+import { Instagram, Mail, MapPin, ChevronUp, Phone, Facebook } from "lucide-react";
 
 export default function Footer() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
@@ -77,6 +77,18 @@ export default function Footer() {
                   data-testid="instagram-link"
                 >
                   @aeroexotic
+                </a>
+              </div>
+              <div className="flex items-center gap-3">
+                <Facebook size={14} className="text-gray-500" strokeWidth={1.5} />
+                <a
+                  href="https://facebook.com/AeroExotic"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-gray-400 hover:text-white transition-colors"
+                  data-testid="facebook-link"
+                >
+                  AeroExotic
                 </a>
               </div>
             </div>
