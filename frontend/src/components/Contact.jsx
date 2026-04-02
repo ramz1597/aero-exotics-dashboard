@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Mail, MapPin, Send } from "lucide-react";
+import { Mail, MapPin, Send, Phone } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
 
@@ -53,8 +53,20 @@ export default function Contact() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 uppercase tracking-wider">Email</p>
-                  <a href="mailto:aeroexoticdetailing@gmail.com" className="text-white hover:text-[#D92323] transition-colors text-sm">
-                    aeroexoticdetailing@gmail.com
+                  <a href="mailto:AeroExoticDetailing@gmail.com" className="text-white hover:text-[#D92323] transition-colors text-sm">
+                    AeroExoticDetailing@gmail.com
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-lg bg-white/5">
+                  <Phone size={20} strokeWidth={1.5} className="text-[#D92323]" />
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">Phone</p>
+                  <a href="tel:+15097995696" className="text-white hover:text-[#D92323] transition-colors text-sm">
+                    (509) 799-5696
                   </a>
                 </div>
               </div>

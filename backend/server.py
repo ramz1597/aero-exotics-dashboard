@@ -80,6 +80,30 @@ class NotifyResponse(BaseModel):
     service_type: str
     created_at: str
 
+class QuoteCreate(BaseModel):
+    name: str
+    phone: str
+    zip_code: str
+    service_type: str
+    vehicle_type: str
+    year_make_model: str
+    notes: Optional[str] = ""
+    source: Optional[str] = "Website Form"
+
+class QuoteResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str
+    name: str
+    phone: str
+    zip_code: str
+    service_type: str
+    vehicle_type: str
+    year_make_model: str
+    notes: str
+    source: str
+    status: str
+    created_at: str
+
 # --- Routes ---
 
 @api_router.get("/")
@@ -124,6 +148,24 @@ async def create_contact(data: ContactCreate):
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.contacts.insert_one(doc)
+    return {k: v for k, v in doc.items() if k != "_id"}
+
+@api_router.post("/quotes", response_model=QuoteResponse)
+async def create_quote(data: QuoteCreate):
+    doc = {
+        "id": str(uuid.uuid4()),
+        "name": data.name,
+        "phone": data.phone,
+        "zip_code": data.zip_code,
+        "service_type": data.service_type,
+        "vehicle_type": data.vehicle_type,
+        "year_make_model": data.year_make_model,
+        "notes": data.notes or "",
+        "source": data.source or "Website Form",
+        "status": "new",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.quotes.insert_one(doc)
     return {k: v for k, v in doc.items() if k != "_id"}
 
 @api_router.post("/notify", response_model=NotifyResponse)

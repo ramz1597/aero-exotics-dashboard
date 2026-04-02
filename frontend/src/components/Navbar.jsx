@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Phone } from "lucide-react";
 
 const NAV_LINKS = [
+  { label: "Get a Quote", href: "#quote" },
   { label: "Services", href: "#services" },
   { label: "Pricing", href: "#pricing" },
   { label: "Gallery", href: "#gallery" },
-  { label: "Reviews", href: "#testimonials" },
   { label: "FAQ", href: "#faq" },
   { label: "Contact", href: "#contact" },
 ];
@@ -65,13 +65,24 @@ export default function Navbar({ onBookClick }) {
         </div>
 
         {/* CTA + Mobile Toggle */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          <a
+            href="tel:+15097995696"
+            data-testid="nav-phone-link"
+            className="hidden md:inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            <Phone size={14} strokeWidth={1.5} />
+            (509) 799-5696
+          </a>
           <Button
             data-testid="nav-book-now-btn"
-            onClick={onBookClick}
+            onClick={() => {
+              const el = document.querySelector("#quote");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }}
             className="bg-white text-black hover:bg-gray-200 font-heading font-semibold text-sm px-6 hidden sm:inline-flex"
           >
-            Book Now
+            Get a Quote
           </Button>
           <button
             data-testid="mobile-menu-toggle"
@@ -96,12 +107,15 @@ export default function Navbar({ onBookClick }) {
                 {link.label}
               </button>
             ))}
+            <a href="tel:+15097995696" className="flex items-center gap-2 text-gray-300 hover:text-white text-base font-medium transition-colors">
+              <Phone size={16} /> (509) 799-5696
+            </a>
             <Button
               data-testid="mobile-book-now-btn"
-              onClick={() => { setMobileOpen(false); onBookClick(); }}
+              onClick={() => { setMobileOpen(false); const el = document.querySelector("#quote"); if (el) el.scrollIntoView({ behavior: "smooth" }); }}
               className="bg-white text-black hover:bg-gray-200 font-heading font-semibold w-full mt-2"
             >
-              Book Now
+              Get a Quote
             </Button>
           </div>
         </div>

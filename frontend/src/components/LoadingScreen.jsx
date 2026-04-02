@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 const LOADING_VIDEO_URL =
   "https://customer-assets.emergentagent.com/job_exotic-cars-2/artifacts/yudb2ew9_Create-a-dynamic-animated-logo-sequence-for-%27AeroE-3.mp4";
@@ -7,45 +7,54 @@ export default function LoadingScreen({ onComplete }) {
   const videoRef = useRef(null);
   const [fadeOut, setFadeOut] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const dismissedRef = useRef(false);
+
+  const dismiss = useCallback(() => {
+    if (dismissedRef.current) return;
+    dismissedRef.current = true;
+    setFadeOut(true);
+    setTimeout(() => {
+      setHidden(true);
+      onComplete?.();
+    }, 800);
+  }, [onComplete]);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const dismiss = () => {
-      if (fadeOut) return;
-      setFadeOut(true);
-      setTimeout(() => {
-        setHidden(true);
-        onComplete?.();
-      }, 800);
-    };
+    // Fetch video as blob to bypass any URL encoding issues
+    fetch(LOADING_VIDEO_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error("fetch failed");
+        return res.blob();
+      })
+      .then((blob) => {
+        const blobUrl = URL.createObjectURL(blob);
+        video.src = blobUrl;
+        video.load();
 
-    const handleEnded = () => dismiss();
-    const handleError = () => setTimeout(dismiss, 1000);
+        video.oncanplay = () => {
+          video.play().catch(() => dismiss());
+        };
+        video.onended = () => dismiss();
+        video.onerror = () => dismiss();
+      })
+      .catch(() => {
+        // Fallback: try direct src
+        video.src = LOADING_VIDEO_URL;
+        video.load();
+        video.oncanplay = () => {
+          video.play().catch(() => dismiss());
+        };
+        video.onended = () => dismiss();
+        video.onerror = () => dismiss();
+      });
 
-    // Force play when video is ready
-    const handleCanPlay = () => {
-      video.play().catch(() => {});
-    };
-
-    video.addEventListener("ended", handleEnded);
-    video.addEventListener("error", handleError);
-    video.addEventListener("canplaythrough", handleCanPlay);
-
-    // Also try playing immediately
-    video.play().catch(() => {});
-
-    // Fallback: auto-dismiss after 10 seconds
-    const fallback = setTimeout(dismiss, 10000);
-
-    return () => {
-      video.removeEventListener("ended", handleEnded);
-      video.removeEventListener("error", handleError);
-      video.removeEventListener("canplaythrough", handleCanPlay);
-      clearTimeout(fallback);
-    };
-  }, [onComplete, fadeOut]);
+    // Absolute fallback
+    const fallback = setTimeout(dismiss, 12000);
+    return () => clearTimeout(fallback);
+  }, [dismiss]);
 
   if (hidden) return null;
 
@@ -58,14 +67,11 @@ export default function LoadingScreen({ onComplete }) {
     >
       <video
         ref={videoRef}
-        autoPlay
         muted
         playsInline
         preload="auto"
         className="w-full h-full object-cover"
-      >
-        <source src={LOADING_VIDEO_URL} type="video/mp4" />
-      </video>
+      />
     </div>
   );
 }

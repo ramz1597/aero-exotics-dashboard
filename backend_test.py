@@ -155,6 +155,76 @@ class AeroExoticAPITester:
         success2, _ = self.run_test("Duplicate Notification (should fail)", "POST", "notify", 400, test_data)
         return success2
 
+    def test_create_quote_founders(self):
+        """Test creating a quote with Founders Detail package"""
+        test_data = {
+            "name": f"John Doe {datetime.now().strftime('%H%M%S')}",
+            "phone": "(509) 123-4567",
+            "zip_code": "99201",
+            "service_type": "Founders Detail — $100 (Limited Time)",
+            "vehicle_type": "Sedan / Coupe",
+            "year_make_model": "2024 Porsche 911",
+            "notes": "Interested in ceramic coating",
+            "source": "Website Form"
+        }
+        success, response = self.run_test("Create Quote (Founders)", "POST", "quotes", 200, test_data)
+        if success and response.get('id'):
+            print(f"   Created quote with ID: {response.get('id')}")
+            return True
+        return success
+
+    def test_create_quote_black_label(self):
+        """Test creating a quote with Black Label Detail package"""
+        test_data = {
+            "name": f"Jane Smith {datetime.now().strftime('%H%M%S')}",
+            "phone": "(509) 987-6543",
+            "zip_code": "99202",
+            "service_type": "Black Label Detail — Starting at $200",
+            "vehicle_type": "SUV",
+            "year_make_model": "2023 Range Rover Sport",
+            "notes": "Need full interior and exterior detail"
+        }
+        success, response = self.run_test("Create Quote (Black Label)", "POST", "quotes", 200, test_data)
+        if success and response.get('id'):
+            print(f"   Created quote with ID: {response.get('id')}")
+            return True
+        return success
+
+    def test_create_quote_minimal(self):
+        """Test creating a quote with minimal required fields"""
+        test_data = {
+            "name": f"Mike Johnson {datetime.now().strftime('%H%M%S')}",
+            "phone": "(509) 555-0123",
+            "zip_code": "99203",
+            "service_type": "Founders Detail — $100 (Limited Time)",
+            "vehicle_type": "Exotic",
+            "year_make_model": "2022 McLaren 720S"
+        }
+        success, response = self.run_test("Create Quote (Minimal)", "POST", "quotes", 200, test_data)
+        if success and response.get('id'):
+            print(f"   Created quote with ID: {response.get('id')}")
+            return True
+        return success
+
+    def test_create_quote_all_vehicle_types(self):
+        """Test creating quotes for all vehicle types"""
+        vehicle_types = ["Sedan / Coupe", "SUV", "Truck / Large Vehicle", "Exotic"]
+        results = []
+        
+        for i, vehicle_type in enumerate(vehicle_types):
+            test_data = {
+                "name": f"Test Customer {i+1} {datetime.now().strftime('%H%M%S')}",
+                "phone": f"(509) 555-{1000+i:04d}",
+                "zip_code": f"9920{i+1}",
+                "service_type": "Black Label Detail — Starting at $200",
+                "vehicle_type": vehicle_type,
+                "year_make_model": f"2023 Test Vehicle {i+1}"
+            }
+            success, response = self.run_test(f"Create Quote ({vehicle_type})", "POST", "quotes", 200, test_data)
+            results.append(success)
+            
+        return all(results)
+
 def main():
     print("🚀 Starting AeroExotic API Testing...")
     print("=" * 50)
@@ -172,6 +242,11 @@ def main():
         tester.test_create_notify_aircraft,
         tester.test_create_notify_watercraft,
         tester.test_duplicate_notify,
+        # Quote form tests (NEW ENHANCEMENT)
+        tester.test_create_quote_founders,
+        tester.test_create_quote_black_label,
+        tester.test_create_quote_minimal,
+        tester.test_create_quote_all_vehicle_types,
     ]
     
     for test in tests:

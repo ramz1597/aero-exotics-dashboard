@@ -15,6 +15,7 @@ import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import BookingWizard from "@/components/BookingWizard";
 import LoadingScreen from "@/components/LoadingScreen";
+import QuoteForm from "@/components/QuoteForm";
 import { Toaster } from "@/components/ui/sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -25,6 +26,7 @@ const Home = ({ onBookClick }) => {
     <>
       <HeroSection onBookClick={onBookClick} />
       <TrustBar />
+      <QuoteForm />
       <Services />
       <PricingTable onBookClick={onBookClick} />
       <Gallery />

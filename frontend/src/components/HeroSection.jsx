@@ -50,10 +50,10 @@ export default function HeroSection({ onBookClick }) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up opacity-0 stagger-4">
             <Button
               data-testid="hero-book-now-btn"
-              onClick={onBookClick}
+              onClick={() => { const el = document.querySelector("#quote"); if (el) el.scrollIntoView({ behavior: "smooth" }); }}
               className="bg-white text-black hover:bg-gray-200 font-heading font-bold text-base px-8 py-6 hover:scale-[1.02] transition-transform"
             >
-              Book Now
+              Get a Quote
             </Button>
             <Button
               data-testid="hero-view-services-btn"

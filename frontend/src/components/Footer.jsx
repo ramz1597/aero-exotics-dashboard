@@ -1,4 +1,4 @@
-import { Instagram, Mail, MapPin, ChevronUp } from "lucide-react";
+import { Instagram, Mail, MapPin, ChevronUp, Phone } from "lucide-react";
 
 export default function Footer() {
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
@@ -57,8 +57,14 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-3">
                 <Mail size={14} className="text-gray-500" strokeWidth={1.5} />
-                <a href="mailto:aeroexoticdetailing@gmail.com" className="text-sm text-gray-400 hover:text-white transition-colors">
-                  aeroexoticdetailing@gmail.com
+                <a href="mailto:AeroExoticDetailing@gmail.com" className="text-sm text-gray-400 hover:text-white transition-colors">
+                  AeroExoticDetailing@gmail.com
+                </a>
+              </div>
+              <div className="flex items-center gap-3">
+                <Phone size={14} className="text-gray-500" strokeWidth={1.5} />
+                <a href="tel:+15097995696" className="text-sm text-gray-400 hover:text-white transition-colors">
+                  (509) 799-5696
                 </a>
               </div>
               <div className="flex items-center gap-3">
