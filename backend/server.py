@@ -110,12 +110,16 @@ class QuoteResponse(BaseModel):
 GSHEET_WEBHOOK = os.environ.get("GSHEET_WEBHOOK_URL", "")
 
 async def sync_to_sheet(payload: dict):
-    """Fire-and-forget POST to Google Apps Script webhook"""
+    """Sync booking data to Google Sheet via Apps Script GET with query params"""
     if not GSHEET_WEBHOOK:
         return
     try:
-        async with httpx.AsyncClient(timeout=15) as client:
-            await client.post(GSHEET_WEBHOOK, json=payload, follow_redirects=True)
+        import urllib.parse
+        params = {k: str(v) for k, v in payload.items()}
+        url = f"{GSHEET_WEBHOOK}?{urllib.parse.urlencode(params)}"
+        async with httpx.AsyncClient(timeout=20) as client:
+            resp = await client.get(url, follow_redirects=True)
+            logger.info(f"Google Sheet sync: {resp.status_code}")
     except Exception as e:
         logger.warning(f"Google Sheet sync failed: {e}")
 

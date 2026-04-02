@@ -1,45 +1,38 @@
 // ============================================
-// AEROEXOTIC BOOKING INTEGRATION
+// AEROEXOTIC BOOKING INTEGRATION v2
 // Paste this into Google Apps Script (Extensions > Apps Script)
 // Deploy as Web App: Execute as Me, Anyone can access
 // ============================================
 
+function doGet(e) {
+  var params = e.parameter || {};
+  
+  // If action param exists, this is a write request
+  if (params.action === "book") {
+    return addBooking(params);
+  }
+  
+  // Otherwise return availability
+  return getAvailability();
+}
+
 function doPost(e) {
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet();
-    
-    // Setup sheets if they don't exist
-    var bookingsSheet = sheet.getSheetByName("Bookings") || createBookingsSheet(sheet);
-    var availabilitySheet = sheet.getSheetByName("Availability") || createAvailabilitySheet(sheet);
-    var settingsSheet = sheet.getSheetByName("Settings") || createSettingsSheet(sheet);
-    
     var data = JSON.parse(e.postData.contents);
-    
-    if (data.action === "get_availability") {
-      return getAvailability(availabilitySheet, settingsSheet);
-    }
-    
     if (data.action === "book") {
-      return addBooking(bookingsSheet, availabilitySheet, data);
+      return addBooking(data);
     }
-    
-    return ContentService.createTextOutput(JSON.stringify({success: false, error: "Unknown action"}))
-      .setMimeType(ContentService.MimeType.JSON);
-      
+    return getAvailability();
   } catch(err) {
     return ContentService.createTextOutput(JSON.stringify({success: false, error: err.toString()}))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
-function doGet(e) {
+function addBooking(data) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet();
-  var availabilitySheet = sheet.getSheetByName("Availability") || createAvailabilitySheet(sheet);
-  var settingsSheet = sheet.getSheetByName("Settings") || createSettingsSheet(sheet);
-  return getAvailability(availabilitySheet, settingsSheet);
-}
-
-function addBooking(bookingsSheet, availabilitySheet, data) {
+  var bookingsSheet = sheet.getSheetByName("Bookings") || createBookingsSheet(sheet);
+  
   var timestamp = new Date().toISOString();
   var row = [
     timestamp,
@@ -60,18 +53,23 @@ function addBooking(bookingsSheet, availabilitySheet, data) {
   
   bookingsSheet.appendRow(row);
   
-  // Update availability - mark slot as booked
+  // Update availability if date/time provided
   if (data.preferred_date && data.preferred_time) {
-    var avData = availabilitySheet.getDataRange().getValues();
-    for (var i = 1; i < avData.length; i++) {
-      var rowDate = Utilities.formatDate(new Date(avData[i][0]), Session.getScriptTimeZone(), "yyyy-MM-dd");
-      if (rowDate === data.preferred_date && avData[i][2] === data.preferred_time && avData[i][3] === "available") {
-        availabilitySheet.getRange(i + 1, 4).setValue("booked");
-        availabilitySheet.getRange(i + 1, 5).setValue(data.name);
-        availabilitySheet.getRange(i + 1, 6).setValue(data.phone);
-        availabilitySheet.getRange(i + 1, 7).setValue(data.service_type);
-        availabilitySheet.getRange(i + 1, 8).setValue(data.year_make_model);
-        break;
+    var availabilitySheet = sheet.getSheetByName("Availability");
+    if (availabilitySheet) {
+      var avData = availabilitySheet.getDataRange().getValues();
+      for (var i = 1; i < avData.length; i++) {
+        try {
+          var rowDate = Utilities.formatDate(new Date(avData[i][0]), Session.getScriptTimeZone(), "yyyy-MM-dd");
+          if (rowDate === data.preferred_date && avData[i][2] === data.preferred_time && avData[i][3] === "available") {
+            availabilitySheet.getRange(i + 1, 4).setValue("booked");
+            availabilitySheet.getRange(i + 1, 5).setValue(data.name);
+            availabilitySheet.getRange(i + 1, 6).setValue(data.phone);
+            availabilitySheet.getRange(i + 1, 7).setValue(data.service_type);
+            availabilitySheet.getRange(i + 1, 8).setValue(data.year_make_model);
+            break;
+          }
+        } catch(e) {}
       }
     }
   }
@@ -80,22 +78,32 @@ function addBooking(bookingsSheet, availabilitySheet, data) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function getAvailability(availabilitySheet, settingsSheet) {
+function getAvailability() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet();
+  var availabilitySheet = sheet.getSheetByName("Availability");
+  
+  if (!availabilitySheet) {
+    return ContentService.createTextOutput(JSON.stringify({success: true, slots: []}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
   var data = availabilitySheet.getDataRange().getValues();
   var available = [];
   var today = new Date();
   today.setHours(0,0,0,0);
   
   for (var i = 1; i < data.length; i++) {
-    var slotDate = new Date(data[i][0]);
-    if (slotDate >= today && data[i][3] === "available") {
-      available.push({
-        date: Utilities.formatDate(slotDate, Session.getScriptTimeZone(), "yyyy-MM-dd"),
-        day: data[i][1],
-        time: data[i][2],
-        status: data[i][3]
-      });
-    }
+    try {
+      var slotDate = new Date(data[i][0]);
+      if (slotDate >= today && data[i][3] === "available") {
+        available.push({
+          date: Utilities.formatDate(slotDate, Session.getScriptTimeZone(), "yyyy-MM-dd"),
+          day: data[i][1],
+          time: data[i][2],
+          status: data[i][3]
+        });
+      }
+    } catch(e) {}
   }
   
   return ContentService.createTextOutput(JSON.stringify({success: true, slots: available}))
@@ -120,7 +128,6 @@ function createAvailabilitySheet(spreadsheet) {
   sheet.getRange(1, 1, 1, 8).setFontWeight("bold").setBackground("#111111").setFontColor("#ffffff");
   sheet.setFrozenRows(1);
   
-  // Pre-populate next 30 days of availability
   var times = ["8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"];
   var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var today = new Date();
@@ -128,16 +135,11 @@ function createAvailabilitySheet(spreadsheet) {
   for (var d = 0; d < 30; d++) {
     var date = new Date(today);
     date.setDate(today.getDate() + d);
-    var dayName = days[date.getDay()];
-    
-    // Skip Sundays
     if (date.getDay() === 0) continue;
-    
     for (var t = 0; t < times.length; t++) {
-      sheet.appendRow([date, dayName, times[t], "available", "", "", "", ""]);
+      sheet.appendRow([date, days[date.getDay()], times[t], "available", "", "", "", ""]);
     }
   }
-  
   return sheet;
 }
 
@@ -154,10 +156,9 @@ function createSettingsSheet(spreadsheet) {
   return sheet;
 }
 
-// Run this once to set up all sheets
 function setupSheets() {
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  createBookingsSheet(spreadsheet);
-  createAvailabilitySheet(spreadsheet);
-  createSettingsSheet(spreadsheet);
+  if (!spreadsheet.getSheetByName("Bookings")) createBookingsSheet(spreadsheet);
+  if (!spreadsheet.getSheetByName("Availability")) createAvailabilitySheet(spreadsheet);
+  if (!spreadsheet.getSheetByName("Settings")) createSettingsSheet(spreadsheet);
 }
